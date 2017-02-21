@@ -120,6 +120,9 @@ for textfilename in filelist:
 			# if the Internet was never used
 			if timeuntilinternet == 0:
 				timeuntilinternet = totaltime		
+			# if nothing was ever clicked
+			if timefirstclick == 0:
+				timefirstclick = totaltime
 
 	# Close the file
 	txtfile.close()
