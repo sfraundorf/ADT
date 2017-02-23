@@ -5,9 +5,9 @@ import datetime
 import glob
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-Transaction/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-Transaction/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-Transaction/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-Transaction/'
 
 # Used columns
 ParticipantCol = 0
@@ -49,19 +49,19 @@ for textfilename in filelist:
 	# Skip variable names
 	line = csvreader.next()
 	
-	# Initialize:
-	timeeducational = 0
-	timeinternet = 0
-	timefirstclick = 0
-	timeuntilinternet = 0
-	numswitches = 0
-	correctQs = 0
-	incorrectQs = 0
-		
 	# Go through events line by line
 	for line in csvreader:
 		# find the action type
 		if line[ActionCol] == 'Session Started':
+			# new block!
+			# Initialize the block:
+			timeeducational = 0
+			timeinternet = 0
+			timefirstclick = 0
+			timeuntilinternet = 0
+			numswitches = 0
+			correctQs = 0
+			incorrectQs = 0			
 			# start and ending time:
 			starttime = adttime(line[TimeCol])
 			lasttime = adttime(line[TimeCol])
@@ -70,8 +70,9 @@ for textfilename in filelist:
 			# initialize the task:
 			currenttask = 'Initial'
 			config = line[ConfigCol]
-			# block:
+			# block name/ID:
 			block = int(str.replace(line[DataCol], ' Block ', ''))
+			
 		elif line[ActionCol] == 'Click Event':
 			# how much time since the last event?
 			newtime = adttime(line[TimeCol])
@@ -96,6 +97,7 @@ for textfilename in filelist:
 			# update the current task and time
 			currenttask = newtask
 			lasttime = newtime
+			
 		elif line[ActionCol] == 'QuestionAction:':
 			# they answered an educational question
 			if ' CORRECT' in line[DataCol]:
@@ -104,7 +106,9 @@ for textfilename in filelist:
 				incorrectQs += 1
 			else:
 				print 'Bad question action - %s' % line[DataCol]
+				
 		elif line[ActionCol] == 'Session End':
+			# end of block
 			# compute the total time in the task
 			endtime = adttime(line[-1])
 			totaltime = (endtime - starttime).seconds		
@@ -123,23 +127,21 @@ for textfilename in filelist:
 			# if nothing was ever clicked
 			if timefirstclick == 0:
 				timefirstclick = totaltime
-
-	# Close the file
-	txtfile.close()
-	
-	# Compute the percentages
-	pcteducational = (timeeducational / float(totaltime)) * 100
-	pctinternet = (timeinternet / float(totaltime)) * 100
-	pctfirstclick = (timefirstclick / float(totaltime)) * 100
-	pctfirstinternet = (timeuntilinternet / float(totaltime)) * 100
-	
-	# Write the summary for this subject
-	summaryfile.write('\n')	
-	summaryfile.write(','.join([participant, config, str(block),
+			# Compute the percentages
+			pcteducational = (timeeducational / float(totaltime)) * 100
+			pctinternet = (timeinternet / float(totaltime)) * 100
+			pctfirstclick = (timefirstclick / float(totaltime)) * 100
+			pctfirstinternet = (timeuntilinternet / float(totaltime)) * 100
+			# Write the summary for this block
+			summaryfile.write('\n')	
+			summaryfile.write(','.join([participant, config, str(block),
 								str(pcteducational), str(pctinternet), str(pctfirstclick), str(pctfirstinternet),
 								str(timeeducational), str(timeinternet), str(timefirstclick), str(timeuntilinternet),
 								str(numswitches), str(starttime), str(endtime), str(totaltime), 
 								str(correctQs+incorrectQs), str(correctQs)]))
+																
+	# End of file--close
+	txtfile.close()								
 
 # Wrap up the files
 summaryfile.close()
