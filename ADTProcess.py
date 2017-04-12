@@ -3,6 +3,7 @@ import re
 import string
 import datetime
 import glob
+from ADTData import *
 
 # File locations
 inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-Transaction/'
@@ -14,18 +15,7 @@ ParticipantCol = 0
 ActionCol = 1
 DataCol= 2
 ConfigCol = 3
-TimeCol = 4
-
-def adttime(timestr):
-	return datetime.datetime.strptime(timestr, '%Y-%m-%d %I:%M:%S%p')
-	
-def tasktype(datastr):
-	if ('Answer Selected' in datastr) or ('Start Button Clicked' in datastr) or ('Do Math Clicked:' in datastr):
-		return 'Educational'
-	elif 'Stimulus Clicked:' in datastr:
-		return 'Internet'
-	else:
-		return 'Bad task'
+TimeCol = 4	
 		
 # Start the output file:
 outputfilename = outputpath + 'summary.csv'
@@ -55,90 +45,45 @@ for textfilename in filelist:
 		if line[ActionCol] == 'Session Started':
 			# new block!
 			# Initialize the block:
-			timeeducational = 0
-			timeinternet = 0
-			timefirstclick = 0
-			timeuntilinternet = 0
-			numswitches = 0
-			correctQs = 0
-			incorrectQs = 0			
+			currentblock = ADTBlock()
 			# start and ending time:
-			starttime = adttime(line[TimeCol])
-			lasttime = adttime(line[TimeCol])
+			currentblock.starttime = adttime(line[TimeCol])
+			currentblock.lasttime = adttime(line[TimeCol])
 			# participant & list:
-			participant = line[ParticipantCol]
-			# initialize the task:
-			currenttask = 'Initial'
-			config = line[ConfigCol]
+			currentblock.participant = line[ParticipantCol]
+			currentblock.config = line[ConfigCol]
 			# block name/ID:
-			block = int(str.replace(line[DataCol], ' Block ', ''))
+			currentblock.block = int(str.replace(line[DataCol], ' Block ', ''))
+			# initialize the task:
+			currentblock.currenttask = 'Initial'
 			
 		elif line[ActionCol] == 'Click Event':
-			# how much time since the last event?
+			# Get the time:
 			newtime = adttime(line[TimeCol])
-			timeelapsed = (newtime - lasttime).seconds
-			# find what type of task this is:
+			# And the task:
 			newtask = tasktype(line[DataCol])			
 			if newtask == 'Bad task':
 				print 'Bad task - %s' % line[DataCol]
-			# new event has started - add the time to the last action
-			if currenttask == 'Initial':
-				timefirstclick = timeelapsed
-			elif currenttask == 'Educational':
-				timeeducational += timeelapsed
-			elif currenttask == 'Internet':
-				timeinternet += timeelapsed
-			# if this is not the same as the last task, count it as a switch
-			if newtask != currenttask:
-				numswitches += 1
-			# is this the first Internet task?
-			if newtask == 'Internet' and timeuntilinternet == 0:
-				timeuntilinternet = (newtime - starttime).seconds
-			# update the current task and time
-			currenttask = newtask
-			lasttime = newtime
-			
+			# Update the block data:
+			currentblock.click_event(newtime, newtask)
+						
 		elif line[ActionCol] == 'QuestionAction:':
 			# they answered an educational question
 			if ' CORRECT' in line[DataCol]:
-				correctQs += 1
+				currentblock.correctQs += 1
 			elif ' INCORRECT' in line[DataCol] :
-				incorrectQs += 1
+				currentblock.incorrectQs += 1
 			else:
 				print 'Bad question action - %s' % line[DataCol]
 				
 		elif line[ActionCol] == 'Session End':
-			# end of block
-			# compute the total time in the task
+			# End of block
+			# Get the end time:
 			endtime = adttime(line[-1])
-			totaltime = (endtime - starttime).seconds		
-			# how much time since the last event?
-			timeelapsed = (endtime - lasttime).seconds
-			# add the time since the last event to the current task
-			if currenttask == 'Initial':
-				timeinitial = timeelapsed
-			elif currenttask == 'Educational':
-				timeeducational += timeelapsed
-			elif currenttask == 'Internet':
-				timeinternet += timeelapsed			
-			# if the Internet was never used
-			if timeuntilinternet == 0:
-				timeuntilinternet = totaltime		
-			# if nothing was ever clicked
-			if timefirstclick == 0:
-				timefirstclick = totaltime
-			# Compute the percentages
-			pcteducational = (timeeducational / float(totaltime)) * 100
-			pctinternet = (timeinternet / float(totaltime)) * 100
-			pctfirstclick = (timefirstclick / float(totaltime)) * 100
-			pctfirstinternet = (timeuntilinternet / float(totaltime)) * 100
+			# Update the block data:
+			currentblock.end_block(endtime)
 			# Write the summary for this block
-			summaryfile.write('\n')	
-			summaryfile.write(','.join([participant, config, str(block),
-								str(pcteducational), str(pctinternet), str(pctfirstclick), str(pctfirstinternet),
-								str(timeeducational), str(timeinternet), str(timefirstclick), str(timeuntilinternet),
-								str(numswitches), str(starttime), str(endtime), str(totaltime), 
-								str(correctQs+incorrectQs), str(correctQs)]))
+			currentblock.write_summary(summaryfile)
 																
 	# End of file--close
 	txtfile.close()								
