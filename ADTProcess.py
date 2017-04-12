@@ -89,9 +89,9 @@ for textfilename in filelist:
 		elif line[ActionCol] == 'QuestionAction:':
 			# they answered an educational question
 			if ' CORRECT' in line[DataCol]:
-				currentblock.correctQs += 1
+				currentblock.score_question(True)
 			elif ' INCORRECT' in line[DataCol] :
-				currentblock.incorrectQs += 1
+				currentblock.score_question(False)
 			else:
 				print 'Bad question action - %s' % line[DataCol]
 				

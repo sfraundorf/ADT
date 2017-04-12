@@ -93,6 +93,12 @@ class ADTBlock:
 		self.pctinternet = (self.timeinternet / float(self.totaltime)) * 100
 		self.pctfirstclick = (self.timefirstclick / float(self.totaltime)) * 100
 		self.pctfirstinternet = (self.timeuntilinternet / float(self.totaltime)) * 100
+		
+	def score_question(self, correct):
+		if correct:
+			self.correctQs += 1
+		else:
+			self.incorrectQs += 1
 
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
