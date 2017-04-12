@@ -48,7 +48,8 @@ for textfilename in filelist:
 			currentblock = ADTBlock()
 			# start and ending time:
 			currentblock.starttime = adttime(line[TimeCol])
-			currentblock.lasttime = adttime(line[TimeCol])
+			currentblock.lastcheckintime = adttime(line[TimeCol])
+			currentblock.lasteventtime = adttime(line[TimeCol])
 			# participant & list:
 			currentblock.participant = line[ParticipantCol]
 			currentblock.config = line[ConfigCol]
@@ -66,6 +67,12 @@ for textfilename in filelist:
 				print 'Bad task - %s' % line[DataCol]
 			# Update the block data:
 			currentblock.click_event(newtime, newtask)
+			
+		elif line[ActionCol] == '5SecondCheckIn':
+			# Get the time:
+			newtime = adttime(line[TimeCol])
+			# Check in:
+			currentblock.check_in(newtime)
 						
 		elif line[ActionCol] == 'QuestionAction:':
 			# they answered an educational question

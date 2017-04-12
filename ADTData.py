@@ -29,7 +29,8 @@ class ADTBlock:
 		self.starttime = 0
 		self.endtime = 0
 		self.totaltime = 0
-		self.lasttime = 0
+		self.lasteventtime = 0
+		self.lastcheckintime = 0
 		self.participant = ""
 		self.block = ""
 		self.currenttask = 'Initial'
@@ -45,7 +46,7 @@ class ADTBlock:
 				
 	def click_event(self, newtime, newtask):
 		# How much time since the last event?
-		timeelapsed = (newtime - self.lasttime).seconds
+		timeelapsed = (newtime - self.lasteventtime).seconds
 		# Add the time to the last action
 		self.add_time(self.currenttask, timeelapsed)
 		# If this is not the same as the last task, count it as a switch
@@ -56,14 +57,18 @@ class ADTBlock:
 			self.timeuntilinternet = (newtime - self.starttime).seconds
 		# Update the current task and time:
 		self.currenttask = newtask
-		self.lasttime = newtime
+		self.lasteventtime = newtime
+		
+	def check_in(self, newtime):
+		# Update the time of the last check in:
+		self.lastcheckintime = newtime
 		
 	def end_block(self, endtime):
 		# Ending time & total time in this block
 		self.endtime = endtime
 		self.totaltime = (self.endtime - self.starttime).seconds		
 		# How much time since the last event?
-		timeelapsed = (self.endtime - self.lasttime).seconds
+		timeelapsed = (self.endtime - self.lasteventtime).seconds
 		# Add the time since the last event to the current task
 		self.add_time(self.currenttask, timeelapsed)
 		# If the Internet was never used
