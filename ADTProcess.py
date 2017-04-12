@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-Transaction/'
-inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-Transaction/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
+inputsuffix = '1.csv'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
 
 # Used columns
 ParticipantCol = 0
@@ -42,7 +42,11 @@ for textfilename in filelist:
 	# Go through events line by line
 	for line in csvreader:
 		# find the action type
-		if line[ActionCol] == 'Session Started':
+		if len(line) < ActionCol:
+			# blank line
+			pass
+	
+		elif line[ActionCol] == 'Session Started':
 			# new block!
 			# Initialize the block:
 			currentblock = ADTBlock()
@@ -89,10 +93,25 @@ for textfilename in filelist:
 			endtime = adttime(line[-1])
 			# Update the block data:
 			currentblock.end_block(endtime)
-			# Write the summary for this block
+			# Write the summary for this block:
 			currentblock.write_summary(summaryfile)
+			# Note that the block formally ended:
+			currentblock.sessionended = True
+	
+	# End of file
+	# Did we end the session successfully?
+	if currentblock.sessionended == False:
+		# No -- end the session now, recording everything
+		# up to the last checkin or event (whichever is
+		# most recent):
+		endtime = max(currentblock.lastcheckintime,
+		              currentblock.lasteventtime)
+		# Update the block data:
+		currentblock.end_block(endtime)
+		# Write the summary for this block:
+		currentblock.write_summary(summaryfile)
 																
-	# End of file--close
+	# Close the file
 	txtfile.close()								
 
 # Wrap up the files

@@ -35,6 +35,7 @@ class ADTBlock:
 		self.block = ""
 		self.currenttask = 'Initial'
 		self.config = ""
+		self.sessionended = False
 		
 	def add_time(self, task, timeelapsed):
 		if task == 'Initial':
@@ -68,8 +69,8 @@ class ADTBlock:
 		self.endtime = endtime
 		self.totaltime = (self.endtime - self.starttime).seconds		
 		# How much time since the last event?
-		timeelapsed = (self.endtime - self.lasteventtime).seconds
-		# Add the time since the last event to the current task
+		timeelapsed = (self.endtime - self.lasteventtime).seconds		
+		# Add the time since the last event to the current task:
 		self.add_time(self.currenttask, timeelapsed)
 		# If the Internet was never used
 		if self.timeuntilinternet == 0:
