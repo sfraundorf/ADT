@@ -16,12 +16,18 @@ ActionCol = 1
 DataCol= 2
 ConfigCol = 3
 TimeCol = 4	
+
+# Threshold for "idling" on the educational activity
+IdleThreshold = 10
 		
 # Start the output file:
 outputfilename = outputpath + 'summary.csv'
 summaryfile = open(outputfilename, 'w')
-summaryfile.write('Participant,Config,Block,PctEducation,PctMedia,PctUntilFirstClick,PctUntilFirstMedia,' + \
-                  'SecEducation,SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
+summaryfile.write('Participant,Config,Block,' + \
+                  'PctEducationNoIdle,PctIdle,PctEducationTotal,' + \
+                  'PctMedia,PctUntilFirstClick,PctUntilFirstMedia,' + \
+                  'SecEducationNoIdle,SecIdle,SecEducationTotal,' + \
+                  'SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
                   
 # Get a list of all the input files:
@@ -59,6 +65,8 @@ for textfilename in filelist:
 			currentblock.config = line[ConfigCol]
 			# block name/ID:
 			currentblock.block = int(str.replace(line[DataCol], ' Block ', ''))
+			# idling threshold:
+			currentblock.idlethreshold = IdleThreshold
 			# initialize the task:
 			currentblock.currenttask = 'Initial'
 			

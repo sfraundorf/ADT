@@ -17,10 +17,13 @@ class ADTBlock:
 	def __init__(self):
 		self.timeeducational = 0
 		self.timeinternet = 0
+		self.timeidle = 0
 		self.timefirstclick = 0
 		self.timeuntilinternet = 0
 		self.pcteducational = 0
 		self.pctinternet = 0
+		self.pctidle = 0
+		self.totaleducational = 0
 		self.pctfirstclick = 0
 		self.pctfirstinternet = 0
 		self.numswitches = 0
@@ -36,12 +39,17 @@ class ADTBlock:
 		self.currenttask = 'Initial'
 		self.config = ""
 		self.sessionended = False
+		self.idlethreshold = 10
 		
 	def add_time(self, task, timeelapsed):
 		if task == 'Initial':
 			self.timefirstclick = timeelapsed
 		elif task == 'Educational':
-			self.timeeducational += timeelapsed
+			if timeelapsed > self.idlethreshold:
+				self.timeeducational += idlethreshold
+				self.timeidle += (timeelapsed - idlethreshold)
+			else:
+				self.timeeducational += timeelapsed
 		elif task == 'Internet':
 			self.timeinternet += timeelapsed
 				
@@ -80,6 +88,8 @@ class ADTBlock:
 			self.timefirstclick = self.totaltime
 		# Compute the percentages
 		self.pcteducational = (self.timeeducational / float(self.totaltime)) * 100
+		self.pctidle = (self.timeidle / float(self.totaltime)) * 100
+		self.pcttotaleducational = ((self.timeeducational + self.timeidle) / float(self.totaltime)) * 100
 		self.pctinternet = (self.timeinternet / float(self.totaltime)) * 100
 		self.pctfirstclick = (self.timefirstclick / float(self.totaltime)) * 100
 		self.pctfirstinternet = (self.timeuntilinternet / float(self.totaltime)) * 100
@@ -87,10 +97,10 @@ class ADTBlock:
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
 		summaryfile.write(','.join([self.participant, self.config, str(self.block),
-								str(self.pcteducational), str(self.pctinternet), 
-								str(self.pctfirstclick), str(self.pctfirstinternet),
-								str(self.timeeducational), str(self.timeinternet), 
-								str(self.timefirstclick), str(self.timeuntilinternet),
+								str(self.pcteducational), str(self.pctidle), str(self.pcttotaleducational),
+								str(self.pctinternet), str(self.pctfirstclick), str(self.pctfirstinternet),
+								str(self.timeeducational), str(self.timeidle), str(self.timeeducational + self.timeidle),
+								str(self.timeinternet), str(self.timefirstclick), str(self.timeuntilinternet),
 								str(self.numswitches), str(self.starttime),
 								str(self.endtime), str(self.totaltime), 
 								str(self.correctQs+self.incorrectQs), str(self.correctQs)]))	
