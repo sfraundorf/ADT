@@ -71,6 +71,8 @@ for textfilename in filelist:
 			currentblock.currenttask = 'Initial'
 			
 		elif line[ActionCol] == 'Click Event':
+			# Confirm that at least one thing has happened in the block
+			currentblock.sessionstarted = True
 			# Get the time:
 			newtime = adttime(line[TimeCol])
 			# And the task:
@@ -81,12 +83,16 @@ for textfilename in filelist:
 			currentblock.click_event(newtime, newtask)
 			
 		elif line[ActionCol] == '5SecondCheckIn':
+			# Confirm that at least one thing has happened in the block
+			currentblock.sessionstarted = True		
 			# Get the time:
 			newtime = adttime(line[TimeCol])
 			# Check in:
 			currentblock.check_in(newtime)
 						
 		elif line[ActionCol] == 'QuestionAction:':
+			# Confirm that at least one thing has happened in the block
+			currentblock.sessionstarted = True		
 			# they answered an educational question
 			if ' CORRECT' in line[DataCol]:
 				currentblock.score_question(True)
@@ -107,8 +113,9 @@ for textfilename in filelist:
 			currentblock.sessionended = True
 	
 	# End of file
-	# Did we end the session successfully?
-	if currentblock.sessionended == False:
+	# Is this a real block that did start, but did not
+	# end successfully?
+	if currentblock.sessionstarted and not currentblock.sessionended:
 		# No -- end the session now, recording everything
 		# up to the last checkin or event (whichever is
 		# most recent):

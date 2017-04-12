@@ -38,6 +38,7 @@ class ADTBlock:
 		self.block = ""
 		self.currenttask = 'Initial'
 		self.config = ""
+		self.sessionstarted = False
 		self.sessionended = False
 		self.idlethreshold = 10
 		
