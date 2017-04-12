@@ -46,8 +46,8 @@ class ADTBlock:
 			self.timefirstclick = timeelapsed
 		elif task == 'Educational':
 			if timeelapsed > self.idlethreshold:
-				self.timeeducational += idlethreshold
-				self.timeidle += (timeelapsed - idlethreshold)
+				self.timeeducational += self.idlethreshold
+				self.timeidle += (timeelapsed - self.idlethreshold)
 			else:
 				self.timeeducational += timeelapsed
 		elif task == 'Internet':

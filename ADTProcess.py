@@ -7,7 +7,7 @@ from ADTData import *
 
 # File locations
 inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
-inputsuffix = '1.csv'
+inputsuffix = 'idle.csv'
 outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
 
 # Used columns
