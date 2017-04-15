@@ -7,8 +7,11 @@ from ADTData import *
 
 # File locations
 inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
-inputsuffix = 'idle.csv'
+inputsuffix = '.txt'
 outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
+
+# Threshold (in seconds) for "idling" on the educational activity
+IdleThreshold = 10
 
 # Used columns
 ParticipantCol = 0
@@ -16,9 +19,6 @@ ActionCol = 1
 DataCol= 2
 ConfigCol = 3
 TimeCol = 4	
-
-# Threshold for "idling" on the educational activity
-IdleThreshold = 10
 		
 # Start the output file:
 outputfilename = outputpath + 'summary.csv'
