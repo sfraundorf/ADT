@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 inputsuffix = '.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-3Block-HS/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
@@ -48,7 +48,7 @@ for textfilename in filelist:
 	# Go through events line by line
 	for line in csvreader:
 		# find the action type
-		if len(line) < ActionCol:
+		if len(line) < (ActionCol+1):
 			# blank line
 			pass
 	
