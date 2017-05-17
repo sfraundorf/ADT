@@ -7,7 +7,7 @@ from ADTData import *
 
 # File locations
 inputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
-inputsuffix = '.txt'
+inputsuffix = '-Transaction.txt'
 outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 
 # Threshold (in seconds) for "idling" on the educational activity
@@ -45,6 +45,12 @@ for textfilename in filelist:
 	# Skip variable names
 	line = csvreader.next()
 	
+	# Initialize a blank block
+	currentblock = ADTBlock()
+	
+	# Reset the block number
+	blocknumber = 0
+	
 	# Go through events line by line
 	for line in csvreader:
 		# find the action type
@@ -53,22 +59,37 @@ for textfilename in filelist:
 			pass
 	
 		elif line[ActionCol] == 'Session Started':
-			# new block!
-			# Initialize the block:
-			currentblock = ADTBlock()
-			# start and ending time:
-			currentblock.starttime = adttime(line[TimeCol])
-			currentblock.lastcheckintime = adttime(line[TimeCol])
-			currentblock.lasteventtime = adttime(line[TimeCol])
-			# participant & list:
-			currentblock.participant = line[ParticipantCol]
-			currentblock.config = line[ConfigCol]
-			# block name/ID:
-			currentblock.block = int(str.replace(line[DataCol], ' Block ', ''))
-			# idling threshold:
-			currentblock.idlethreshold = IdleThreshold
-			# initialize the task:
-			currentblock.currenttask = 'Initial'
+			# possible new block!
+			# get its identifiers:
+			blockname = line[DataCol]
+			config = line[ConfigCol]
+			uniqueblockid = blockname + '-' + config
+			if currentblock.sessionstarted == True and uniqueblockid == currentblock.uniqueblockid:
+				# if this block has already started,
+				# this is a "phantom" Session Start that
+				# the ADT puts out sometimes (bug).
+				# Ignore it
+				pass
+			else:
+				# A real block has started
+				# Initialize the block:
+				currentblock = ADTBlock()
+				# start and ending time:
+				currentblock.starttime = adttime(line[TimeCol])
+				currentblock.lastcheckintime = adttime(line[TimeCol])
+				currentblock.lasteventtime = adttime(line[TimeCol])
+				# participant:
+				currentblock.participant = line[ParticipantCol]
+				# block name/ID:
+				currentblock.blockname = line[DataCol]
+				currentblock.config = line[ConfigCol]
+				currentblock.uniqueblockid = currentblock.blockname + '-' + currentblock.config
+				# block number:
+				currentblock.blocknumber = blocknumber
+				# idling threshold:
+				currentblock.idlethreshold = IdleThreshold
+				# initialize the task:
+				currentblock.currenttask = 'Initial'
 			
 		elif line[ActionCol] == 'Click Event':
 			# Confirm that at least one thing has happened in the block
@@ -111,6 +132,8 @@ for textfilename in filelist:
 			currentblock.write_summary(summaryfile)
 			# Note that the block formally ended:
 			currentblock.sessionended = True
+			# Update block counter:
+			blocknumber += 1
 	
 	# End of file
 	# Is this a real block that did start, but did not
@@ -125,6 +148,8 @@ for textfilename in filelist:
 		currentblock.end_block(endtime)
 		# Write the summary for this block:
 		currentblock.write_summary(summaryfile)
+		# Update block counter:		
+		blocknumber += 1
 																
 	# Close the file
 	txtfile.close()								

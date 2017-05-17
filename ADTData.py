@@ -35,9 +35,11 @@ class ADTBlock:
 		self.lasteventtime = 0
 		self.lastcheckintime = 0
 		self.participant = ""
-		self.block = ""
+		self.blocknumber = 0
 		self.currenttask = 'Initial'
+		self.blockname = ""
 		self.config = ""
+		self.uniqueblockid = ""
 		self.sessionstarted = False
 		self.sessionended = False
 		self.idlethreshold = 10
@@ -103,7 +105,7 @@ class ADTBlock:
 
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
-		summaryfile.write(','.join([self.participant, self.config, str(self.block),
+		summaryfile.write(','.join([self.participant, self.config, str(self.blocknumber),
 								str(self.pcteducational), str(self.pctidle), str(self.pcttotaleducational),
 								str(self.pctinternet), str(self.pctfirstclick), str(self.pctfirstinternet),
 								str(self.timeeducational), str(self.timeidle), str(self.timeeducational + self.timeidle),
