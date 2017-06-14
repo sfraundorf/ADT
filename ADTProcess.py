@@ -13,6 +13,15 @@ outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
 
+# Maximum time (in seconds) allowed per block:
+# Set to 0 if you do not want to impose a maximum time per block
+MaxSeconds = 240
+
+# Show detailed feedback in the console on session start times
+# (may be relevant to debugging bad "Session Start" messages from
+# Qualtrics)
+verbose = False
+
 # Used columns
 ParticipantCol = 0
 ActionCol = 1
@@ -29,6 +38,7 @@ summaryfile.write('Participant,Config,Block,' + \
                   'SecEducationNoIdle,SecIdle,SecEducationTotal,' + \
                   'SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
+stopTime = 0
                   
 # Get a list of all the input files:
 filelist = glob.glob(inputpath+'*'+inputsuffix)
@@ -56,7 +66,7 @@ for textfilename in filelist:
 		# find the action type
 		if len(line) < (ActionCol+1):
 			# blank line
-			pass
+			continue
 	
 		elif line[ActionCol] == 'Session Started':
 			# possible new block!
@@ -69,10 +79,24 @@ for textfilename in filelist:
 				# this is a "phantom" Session Start that
 				# the ADT puts out sometimes (bug).
 				# Ignore it
-				pass
+				if verbose:
+					print line
+					print " ERROR"
+				continue
 			else:
+				if currentblock.sessionstarted and not currentblock.sessionended:
+					endtime = max(currentblock.lastcheckintime,
+					              currentblock.lasteventtime)
+					# Update the block data:
+					currentblock.end_block(endtime)
+					# Write the summary for this block:
+					currentblock.write_summary(summaryfile)
+					currentblock.sessionended = True
+					blocknumber += 1					
 				# A real block has started
 				# Initialize the block:
+				if verbose:
+					print line
 				currentblock = ADTBlock()
 				# start and ending time:
 				currentblock.starttime = adttime(line[TimeCol])
@@ -90,8 +114,29 @@ for textfilename in filelist:
 				currentblock.idlethreshold = IdleThreshold
 				# initialize the task:
 				currentblock.currenttask = 'Initial'
+				# time at which this block needs to be capped
+				if MaxSeconds > 0:
+					# Cap requested
+					stopTime = currentblock.starttime + datetime.timedelta(seconds=MaxSeconds)
+				else:
+					# No cap requested
+					stopTime = 0
+					
+		if stopTime != 0:
+			currentTime = datetime.datetime.strptime(line[-1], '%Y-%m-%d %I:%M:%S%p')
+			#Check to see if session needs to be capped
+			if currentTime > stopTime:
+				if not(currentblock.sessionended):
+					if verbose:
+						print "Capping Session"
+					currentblock.end_block(stopTime)
+					# Write the summary for this block:
+					currentblock.write_summary(summaryfile)
+					currentblock.sessionended = True
+					blocknumber += 1
+				continue
 			
-		elif line[ActionCol] == 'Click Event':
+		if line[ActionCol] == 'Click Event':
 			# Confirm that at least one thing has happened in the block
 			currentblock.sessionstarted = True
 			# Get the time:
@@ -152,7 +197,8 @@ for textfilename in filelist:
 		blocknumber += 1
 																
 	# Close the file
-	txtfile.close()								
+	txtfile.close()
+	stopTime= 0							
 
 # Wrap up the files
 summaryfile.close()
