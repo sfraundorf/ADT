@@ -16,6 +16,11 @@ IdleThreshold = 10
 # Maximum time (in seconds) allowed per block:
 MaxSeconds = 480
 
+# Show detailed feedback in the console on session start times
+# (may be relevant to debugging bad "Session Start" messages from
+# Qualtrics)
+verbose = False
+
 # Used columns
 ParticipantCol = 0
 ActionCol = 1
@@ -73,8 +78,9 @@ for textfilename in filelist:
 				# this is a "phantom" Session Start that
 				# the ADT puts out sometimes (bug).
 				# Ignore it
-				print line
-				print " ERROR"
+				if verbose:
+					print line
+					print " ERROR"
 				continue
 			else:
 				if currentblock.sessionstarted and not currentblock.sessionended:
@@ -88,7 +94,8 @@ for textfilename in filelist:
 					blocknumber += 1					
 				# A real block has started
 				# Initialize the block:
-				print line
+				if verbose:
+					print line
 				currentblock = ADTBlock()
 				# start and ending time:
 				currentblock.starttime = adttime(line[TimeCol])
@@ -114,7 +121,8 @@ for textfilename in filelist:
 			#Check to see if session needs to be capped
 			if currentTime > stopTime:
 				if not(currentblock.sessionended):
-					print "Capping Session"
+					if verbose:
+						print "Capping Session"
 					currentblock.end_block(stopTime)
 					# Write the summary for this block:
 					currentblock.write_summary(summaryfile)
