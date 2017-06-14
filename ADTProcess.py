@@ -24,7 +24,7 @@ ConfigCol = 3
 TimeCol = 4	
 		
 # Start the output file:
-outputfilename = outputpath + 'summaryCapped.csv'
+outputfilename = outputpath + 'summary.csv'
 summaryfile = open(outputfilename, 'w')
 summaryfile.write('Participant,Config,Block,' + \
                   'PctEducationNoIdle,PctIdle,PctEducationTotal,' + \
