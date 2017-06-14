@@ -14,7 +14,8 @@ outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 IdleThreshold = 10
 
 # Maximum time (in seconds) allowed per block:
-MaxSeconds = 480
+# Set to 0 if you do not want to impose a maximum time per block
+MaxSeconds = 240
 
 # Show detailed feedback in the console on session start times
 # (may be relevant to debugging bad "Session Start" messages from
@@ -114,9 +115,14 @@ for textfilename in filelist:
 				# initialize the task:
 				currentblock.currenttask = 'Initial'
 				# time at which this block needs to be capped
-				stopTime = currentblock.starttime + datetime.timedelta(seconds=MaxSeconds)
+				if MaxSeconds > 0:
+					# Cap requested
+					stopTime = currentblock.starttime + datetime.timedelta(seconds=MaxSeconds)
+				else:
+					# No cap requested
+					stopTime = 0
+					
 		if stopTime != 0:
-
 			currentTime = datetime.datetime.strptime(line[-1], '%Y-%m-%d %I:%M:%S%p')
 			#Check to see if session needs to be capped
 			if currentTime > stopTime:
