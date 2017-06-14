@@ -6,12 +6,15 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = 'C:/Users/shutt/Dropbox (Emotive Computing)/Pitt/ADT-master/ADT-master/Testing/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 inputsuffix = '-Transaction.txt'
-outputpath = 'C:/Users/shutt/Dropbox (Emotive Computing)/Pitt/ADT-master'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
+
+# Maximum time (in seconds) allowed per block:
+MaxSeconds = 480
 
 # Used columns
 ParticipantCol = 0
@@ -19,11 +22,6 @@ ActionCol = 1
 DataCol= 2
 ConfigCol = 3
 TimeCol = 4	
-
-#timeFrame
-taskSeconds = 480
-
-stopTime = 0
 		
 # Start the output file:
 outputfilename = outputpath + 'summaryCapped.csv'
@@ -34,6 +32,7 @@ summaryfile.write('Participant,Config,Block,' + \
                   'SecEducationNoIdle,SecIdle,SecEducationTotal,' + \
                   'SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
+stopTime = 0
                   
 # Get a list of all the input files:
 filelist = glob.glob(inputpath+'*'+inputsuffix)
@@ -107,8 +106,8 @@ for textfilename in filelist:
 				currentblock.idlethreshold = IdleThreshold
 				# initialize the task:
 				currentblock.currenttask = 'Initial'
-
-				stopTime = currentblock.starttime + datetime.timedelta(seconds=taskSeconds)
+				# time at which this block needs to be capped
+				stopTime = currentblock.starttime + datetime.timedelta(seconds=MaxSeconds)
 		if stopTime != 0:
 
 			currentTime = datetime.datetime.strptime(line[-1], '%Y-%m-%d %I:%M:%S%p')
