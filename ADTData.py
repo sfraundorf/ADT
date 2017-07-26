@@ -29,6 +29,7 @@ class ADTBlock:
 		self.numswitches = 0
 		self.correctQs = 0
 		self.incorrectQs = 0
+		self.totalQs = 0
 		self.starttime = 0
 		self.endtime = 0
 		self.totaltime = 0
@@ -97,11 +98,18 @@ class ADTBlock:
 		self.pctfirstclick = (self.timefirstclick / float(self.totaltime)) * 100
 		self.pctfirstinternet = (self.timeuntilinternet / float(self.totaltime)) * 100
 		
+	def add_question(self):
+		self.totalQs += 1
+		
 	def score_question(self, correct):
+		self.add_question()
 		if correct:
 			self.correctQs += 1
 		else:
 			self.incorrectQs += 1
+	
+	def unscored_question(self):
+		self.add_question()
 
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
@@ -112,4 +120,4 @@ class ADTBlock:
 								str(self.timeinternet), str(self.timefirstclick), str(self.timeuntilinternet),
 								str(self.numswitches), str(self.starttime),
 								str(self.endtime), str(self.totaltime), 
-								str(self.correctQs+self.incorrectQs), str(self.correctQs)]))	
+								str(self.totalQs), str(self.correctQs)]))	

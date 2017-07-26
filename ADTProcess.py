@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SRL/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/3 block data/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SRL/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
@@ -160,12 +160,13 @@ for textfilename in filelist:
 			# Confirm that at least one thing has happened in the block
 			currentblock.sessionstarted = True		
 			# they answered an educational question
+			# if noted whether the question is correct or not, tally it
 			if ' CORRECT' in line[DataCol]:
 				currentblock.score_question(True)
 			elif ' INCORRECT' in line[DataCol] :
 				currentblock.score_question(False)
-			else:
-				print 'Bad question action - %s' % line[DataCol]
+			elif 'Question ' in line[DataCol]:
+				currentblock.unscored_question()
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
