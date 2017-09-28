@@ -101,7 +101,8 @@ class ADTBlock:
 	def add_question(self):
 		self.totalQs += 1
 		
-	def evaluate_recall_question(self):
+	def evaluate_recall_question(self, response):
+		print response
 		self.unscored_question()
 		
 	def evaluate_tf_question(self, correct):
