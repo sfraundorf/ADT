@@ -1,3 +1,4 @@
+import csv
 import datetime
 
 def adttime(timestr):
@@ -134,3 +135,26 @@ class ADTBlock:
 								str(self.numswitches), str(self.starttime),
 								str(self.endtime), str(self.totaltime), 
 								str(self.totalQs), str(self.correctQs)]))
+								
+class AnswerKey:
+	"""An answer key for free response questions."""
+	
+	def __init__(self):
+		self.answerkey = dict()
+		self.numquestions = 0
+		
+	def read_key(self, inputpath, filename):
+		# Open the file and begin reading CSV
+		answerkeyfilename = inputpath + filename
+		answerkeyfile = open(answerkeyfilename, 'rb')
+		answerkeyreader = csv.reader(answerkeyfile)
+		# Skip variable names
+		line = answerkeyreader.next()
+		# Read each question
+		for line in answerkeyreader:
+			questionid = line[0]
+			intendedresponse = line[1]
+			self.answerkey[questionid] = intendedresponse
+		# Count the number of questions
+		self.numquestions = len(self.answerkey)
+		print self.answerkey

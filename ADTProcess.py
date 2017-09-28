@@ -48,7 +48,7 @@ def init_self_test(outputpath):
 			'QuestionID,SerialPosition,' + \
 			'AnswerKey,Response,ScoringType,Correct')
 	return selftestfile
-
+	
 # Are we tracking self-test responses?
 selftest = False
 
@@ -189,6 +189,15 @@ for textfilename in filelist:
 						selftestfile = init_self_test(outputpath)
 						# Note it
 						selftest = True	
+					if currentblock.totalQs == 0:
+						# if the first question in a block, read in the
+						# answer key
+						if blocknumber == 0: # TEMP
+							answerkeyfilename = 'reef.csv'
+						else:
+							answerkeyfilename = 'pterosaur.csv'
+						currentkey = AnswerKey()
+						currentkey.read_key(inputpath, answerkeyfilename)
 					# Get the response and evaluate it
 					response = re.split('Question [0-9][0-9]*?:', line[DataCol])[1]
 					currentblock.evaluate_recall_question(selftestfile, response)
