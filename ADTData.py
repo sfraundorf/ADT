@@ -102,8 +102,8 @@ class ADTBlock:
 		self.totalQs += 1
 		
 	def evaluate_recall_question(self, selftestfile, response):
-		self.write_recall_response(selftestfile, response)
 		self.unscored_question()
+		self.write_recall_response(selftestfile, response)
 		
 	def evaluate_tf_question(self, correct):
 		self.score_question(correct)
@@ -121,7 +121,7 @@ class ADTBlock:
 	def write_recall_response(self, selftestfile, response):
 		selftestfile.write('\n')	
 		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
-		                        "", "",
+		                        "", str(self.totalQs),
 		                        "", response, "", ""]))
 		
 	def write_summary(self, summaryfile):
