@@ -40,6 +40,15 @@ summaryfile.write('Participant,Config,Block,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
 stopTime = 0
 
+# Function to create a self-test answer file, if needed:
+def init_self_test(outputpath):
+	outputfilename = outputpath + 'selftest.csv'
+	selftestfile = open(outputfilename, 'w')
+	selftestfile.write('Participant,Config,Block,' + \
+			'QuestionID,SerialPosition,' + \
+			'AnswerKey,Response,ScoringType,Correct')
+	return selftestfile
+
 # Are we tracking self-test responses?
 selftest = False
 
@@ -177,11 +186,7 @@ for textfilename in filelist:
 					if not selftest:
 						# Start the self-test answer file if it doesn't
 						# already exist
-						outputfilename = outputpath + 'selftest.csv'
-						selftestfile = open(outputfilename, 'w')
-						selftestfile.write('Participant,Config,Block,' + \
-						                  'QuestionID,SerialPosition,' + \
-						                  'AnswerKey,Response,ScoringType,Correct')
+						selftestfile = init_self_test(outputpath)
 						# Note it
 						selftest = True	
 					# Get the response and evaluate it
