@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SRL/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SRL/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
