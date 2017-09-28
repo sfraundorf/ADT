@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
@@ -29,7 +29,7 @@ DataCol= 2
 ConfigCol = 3
 TimeCol = 4	
 		
-# Start the output file:
+# Start the transaction summary file:
 outputfilename = outputpath + 'summary.csv'
 summaryfile = open(outputfilename, 'w')
 summaryfile.write('Participant,Config,Block,' + \
@@ -39,7 +39,10 @@ summaryfile.write('Participant,Config,Block,' + \
                   'SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
 stopTime = 0
-                  
+
+# Are we tracking self-test responses?
+selftest = False
+
 # Get a list of all the input files:
 filelist = glob.glob(inputpath+'*'+inputsuffix)
 
@@ -166,7 +169,23 @@ for textfilename in filelist:
 			elif ' INCORRECT' in line[DataCol] :
 				currentblock.score_question(False)
 			elif 'Question ' in line[DataCol]:
-				currentblock.unscored_question()
+				if "REREAD" in line[DataCol]:
+					# pure re-read, nothing to score
+					currentblock.unscored_question()
+				else:
+					# self-test response
+					if not selftest:
+						# Start the self-test answer file if it doesn't
+						# already exist
+						outputfilename = outputpath + 'selftest.csv'
+						selftestfile = open(outputfilename, 'w')
+						selftestfile.write('Participant,Config,Block,' + \
+						                  'QuestionID,SerialPosition,' + \
+						                  'AnswerKey,Response,ScoringType,Correct')
+						# Note it
+						selftest = True	
+					# temporary
+					currentblock.unscored_question()
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
@@ -203,5 +222,7 @@ for textfilename in filelist:
 
 # Wrap up the files
 summaryfile.close()
+if selftest:
+	selftestfile.close()
 print 'Processed %d file(s)' % (len(filelist))
 print 'Done!'
