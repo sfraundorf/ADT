@@ -101,7 +101,8 @@ class ADTBlock:
 	def add_question(self):
 		self.totalQs += 1
 		
-	def evaluate_recall_question(self, response):
+	def evaluate_recall_question(self, selftestfile, response):
+		self.write_recall_response(selftestfile, response)
 		self.unscored_question()
 		
 	def evaluate_tf_question(self, correct):
@@ -116,7 +117,13 @@ class ADTBlock:
 	
 	def unscored_question(self):
 		self.add_question()
-
+								
+	def write_recall_response(self, selftestfile, response):
+		selftestfile.write('\n')	
+		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
+		                        "", "",
+		                        "", response, "", ""]))
+		
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
 		summaryfile.write(','.join([self.participant, self.config, str(self.blocknumber),
@@ -126,4 +133,4 @@ class ADTBlock:
 								str(self.timeinternet), str(self.timefirstclick), str(self.timeuntilinternet),
 								str(self.numswitches), str(self.starttime),
 								str(self.endtime), str(self.totaltime), 
-								str(self.totalQs), str(self.correctQs)]))	
+								str(self.totalQs), str(self.correctQs)]))

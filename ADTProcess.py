@@ -186,7 +186,7 @@ for textfilename in filelist:
 						selftest = True	
 					# Get the response and evaluate it
 					response = re.split('Question [0-9][0-9]*?:', line[DataCol])[1]
-					currentblock.evaluate_recall_question(response)
+					currentblock.evaluate_recall_question(selftestfile, response)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
