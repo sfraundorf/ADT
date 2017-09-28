@@ -165,9 +165,9 @@ for textfilename in filelist:
 			# they answered an educational question
 			# if noted whether the question is correct or not, tally it
 			if ' CORRECT' in line[DataCol]:
-				currentblock.score_question(True)
+				currentblock.evaluate_tf_question(True)
 			elif ' INCORRECT' in line[DataCol] :
-				currentblock.score_question(False)
+				currentblock.evaluate_tf_question(False)
 			elif 'Question ' in line[DataCol]:
 				if "REREAD" in line[DataCol]:
 					# pure re-read, nothing to score
@@ -184,8 +184,7 @@ for textfilename in filelist:
 						                  'AnswerKey,Response,ScoringType,Correct')
 						# Note it
 						selftest = True	
-					# temporary
-					currentblock.unscored_question()
+					currentblock.evaluate_recall_question()
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
