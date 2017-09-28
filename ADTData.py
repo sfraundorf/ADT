@@ -157,4 +157,3 @@ class AnswerKey:
 			self.answerkey[questionid] = intendedresponse
 		# Count the number of questions
 		self.numquestions = len(self.answerkey)
-		print self.answerkey
