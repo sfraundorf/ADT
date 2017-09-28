@@ -203,5 +203,5 @@ for textfilename in filelist:
 
 # Wrap up the files
 summaryfile.close()
-print 'Processed %d file(s)' % (len(filelist) + 1)
+print 'Processed %d file(s)' % (len(filelist))
 print 'Done!'
