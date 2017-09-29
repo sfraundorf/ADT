@@ -107,8 +107,24 @@ class ADTBlock:
 		questionid = currentkey.get_id_from_serial_position(self.totalQs)
 		# Find the intended response
 		intendedresponse = currentkey.get_intended_response(questionid)
-		self.write_recall_response(selftestfile, questionid, intendedresponse, response)
-		self.unscored_question()
+		# Compare the participant response to the intended response
+		if response.lower() == intendedresponse.lower():
+			# Exact match
+			scoringtype = 'Auto'
+			correct = True
+		else:
+			scoringtype = 'Manual'
+			correct = bool()
+		if scoringtype == 'Auto':
+			correctstring = str(int(correct))
+		else:
+			correctstring = ""
+		self.write_recall_response(selftestfile, questionid, intendedresponse, response, scoringtype, correctstring)
+		# Add to the list of questions
+		if scoringtype == 'Auto':
+			self.score_question(correct)
+		else:
+			self.unscored_question()
 		
 	def evaluate_tf_question(self, correct):
 		self.score_question(correct)
@@ -123,11 +139,11 @@ class ADTBlock:
 	def unscored_question(self):
 		self.add_question()
 								
-	def write_recall_response(self, selftestfile, questionid, intendedresponse, response):
+	def write_recall_response(self, selftestfile, questionid, intendedresponse, response, scoringtype, correct):
 		selftestfile.write('\n')	
 		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
 		                        str(questionid), str(self.totalQs),
-		                        intendedresponse, response, "", ""]))
+		                        intendedresponse, response, scoringtype, correct]))
 		
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
