@@ -199,8 +199,8 @@ for textfilename in filelist:
 						currentkey = AnswerKey()
 						currentkey.read_key(inputpath, answerkeyfilename)
 					# Get the response and evaluate it
-					response = re.split('Question [0-9][0-9]*?:', line[DataCol])[1]
-					currentblock.evaluate_recall_question(selftestfile, response)
+					response = re.split('Question [0-9]+?:', line[DataCol])[1]
+					currentblock.evaluate_recall_question(selftestfile, response, currentkey)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block

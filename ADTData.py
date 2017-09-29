@@ -102,9 +102,11 @@ class ADTBlock:
 	def add_question(self):
 		self.totalQs += 1
 		
-	def evaluate_recall_question(self, selftestfile, response):
+	def evaluate_recall_question(self, selftestfile, response, currentkey):
+		# Figure out where in the cycle of items we are
+		questionid = currentkey.get_id_from_serial_position(self.totalQs)
+		self.write_recall_response(selftestfile, questionid, response)
 		self.unscored_question()
-		self.write_recall_response(selftestfile, response)
 		
 	def evaluate_tf_question(self, correct):
 		self.score_question(correct)
@@ -119,10 +121,10 @@ class ADTBlock:
 	def unscored_question(self):
 		self.add_question()
 								
-	def write_recall_response(self, selftestfile, response):
+	def write_recall_response(self, selftestfile, questionid, response):
 		selftestfile.write('\n')	
 		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
-		                        "", str(self.totalQs),
+		                        str(questionid), str(self.totalQs),
 		                        "", response, "", ""]))
 		
 	def write_summary(self, summaryfile):
@@ -157,3 +159,7 @@ class AnswerKey:
 			self.answerkey[questionid] = intendedresponse
 		# Count the number of questions
 		self.numquestions = len(self.answerkey)
+
+	def get_id_from_serial_position(self, questionnum):
+		questionid = questionnum % self.numquestions
+		return questionid
