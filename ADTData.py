@@ -46,6 +46,7 @@ class ADTBlock:
 		self.sessionstarted = False
 		self.sessionended = False
 		self.idlethreshold = 10
+		self.answerkeyunavailable = False		
 		
 	def add_time(self, task, timeelapsed):
 		if task == 'Initial':

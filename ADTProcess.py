@@ -50,7 +50,7 @@ def init_self_test(outputpath):
 	return selftestfile
 	
 # Are we tracking self-test responses?
-selftest = False
+selftestfileopen = False
 
 # Get a list of all the input files:
 filelist = glob.glob(inputpath+'*'+inputsuffix)
@@ -184,21 +184,26 @@ for textfilename in filelist:
 					currentblock.unscored_question()
 				else:
 					# self-test response
-					if not selftest:
+					if not selftestfileopen:
 						# Start the self-test answer file if it doesn't
 						# already exist
 						selftestfile = init_self_test(outputpath)
 						# Note it
-						selftest = True	
-					if currentblock.totalQs == 0:
+						selftestfileopen = True	
+					if currentblock.totalQs == 0 and not currentblock.answerkeyunavailable:
 						# if the first question in a block, read in the
 						# answer key
 						answerkeyfilename = currentblock.configname + '_Answers.csv'					
 						currentkey = AnswerKey()
-						currentkey.read_key(inputpath, answerkeyfilename)
+						try:
+							currentkey.read_key(inputpath, answerkeyfilename)
+						except IOError:
+							print "Can't find or open answer key with filename %s - no answer scoring for this block" % answerkeyfilename
+							currentblock.answerkeyunavailable = True
 					# Get the response and evaluate it
-					response = re.split('Question [0-9]+?:', line[DataCol])[1]
-					currentblock.evaluate_recall_question(selftestfile, response, currentkey)
+					if not currentblock.answerkeyunavailable:
+						response = re.split('Question [0-9]+?:', line[DataCol])[1]
+						currentblock.evaluate_recall_question(selftestfile, response, currentkey)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
@@ -235,7 +240,7 @@ for textfilename in filelist:
 
 # Wrap up the files
 summaryfile.close()
-if selftest:
+if selftestfileopen:
 	selftestfile.close()
 print 'Processed %d file(s)' % (len(filelist))
 print 'Done!'
