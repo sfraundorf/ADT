@@ -142,7 +142,7 @@ class ADTBlock:
 	def write_recall_response(self, selftestfile, questionid, intendedresponse, response, scoringtype, correct):
 		selftestfile.write('\n')	
 		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
-		                        str(questionid), str(self.totalQs),
+		                        str(questionid+1), str(self.totalQs+1),
 		                        intendedresponse, response, scoringtype, correct]))
 		
 	def write_summary(self, summaryfile):
