@@ -119,6 +119,7 @@ for textfilename in filelist:
 				# block name/ID:
 				currentblock.blockname = line[DataCol]
 				currentblock.config = line[ConfigCol]
+				currentblock.configname = re.split('.txt$', currentblock.config)[0]
 				currentblock.uniqueblockid = currentblock.blockname + '-' + currentblock.config
 				# block number:
 				currentblock.blocknumber = blocknumber
@@ -192,10 +193,7 @@ for textfilename in filelist:
 					if currentblock.totalQs == 0:
 						# if the first question in a block, read in the
 						# answer key
-						if blocknumber == 0: # TEMP
-							answerkeyfilename = 'reef.csv'
-						else:
-							answerkeyfilename = 'pterosaur.csv'
+						answerkeyfilename = currentblock.configname + '_Answers.csv'					
 						currentkey = AnswerKey()
 						currentkey.read_key(inputpath, answerkeyfilename)
 					# Get the response and evaluate it

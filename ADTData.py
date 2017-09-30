@@ -41,6 +41,7 @@ class ADTBlock:
 		self.currenttask = 'Initial'
 		self.blockname = ""
 		self.config = ""
+		self.configname = ""
 		self.uniqueblockid = ""
 		self.sessionstarted = False
 		self.sessionended = False
