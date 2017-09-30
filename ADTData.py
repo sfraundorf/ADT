@@ -172,7 +172,7 @@ class AnswerKey:
 		line = answerkeyreader.next()
 		# Read each question
 		for line in answerkeyreader:
-			questionid = int(line[0])
+			questionid = int(line[0])-1 # 1-based in file
 			intendedresponse = line[1]
 			self.answerkey[questionid] = intendedresponse
 		# Count the number of questions
