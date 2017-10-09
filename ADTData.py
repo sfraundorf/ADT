@@ -42,10 +42,12 @@ class ADTBlock:
 		self.currenttask = 'Initial'
 		self.blockname = ""
 		self.config = ""
+		self.configname = ""
 		self.uniqueblockid = ""
 		self.sessionstarted = False
 		self.sessionended = False
 		self.idlethreshold = 10
+		self.answerkeyunavailable = False		
 		
 	def add_time(self, task, timeelapsed):
 		if task == 'Initial':
@@ -143,7 +145,7 @@ class ADTBlock:
 	def write_recall_response(self, selftestfile, questionid, intendedresponse, response, scoringtype, correct):
 		selftestfile.write('\n')	
 		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
-		                        str(questionid), str(self.totalQs),
+		                        str(questionid+1), str(self.totalQs+1),
 		                        intendedresponse, response, scoringtype, correct]))
 		
 	def write_summary(self, summaryfile):
@@ -173,7 +175,7 @@ class AnswerKey:
 		line = answerkeyreader.next()
 		# Read each question
 		for line in answerkeyreader:
-			questionid = int(line[0])
+			questionid = int(line[0])-1 # 1-based in file
 			intendedresponse = line[1]
 			self.answerkey[questionid] = intendedresponse
 		# Count the number of questions
