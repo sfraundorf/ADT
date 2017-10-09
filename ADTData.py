@@ -1,4 +1,6 @@
+import csv
 import datetime
+from fuzzywuzzy import fuzz
 
 def adttime(timestr):
 	return datetime.datetime.strptime(timestr, '%Y-%m-%d %I:%M:%S%p')
@@ -40,10 +42,12 @@ class ADTBlock:
 		self.currenttask = 'Initial'
 		self.blockname = ""
 		self.config = ""
+		self.configname = ""
 		self.uniqueblockid = ""
 		self.sessionstarted = False
 		self.sessionended = False
 		self.idlethreshold = 10
+		self.answerkeyunavailable = False		
 		
 	def add_time(self, task, timeelapsed):
 		if task == 'Initial':
@@ -101,6 +105,33 @@ class ADTBlock:
 	def add_question(self):
 		self.totalQs += 1
 		
+	def evaluate_recall_question(self, selftestfile, response, currentkey, fuzzthreshold):
+		# Figure out where in the cycle of items we are
+		questionid = currentkey.get_id_from_serial_position(self.totalQs)
+		# Find the intended response
+		intendedresponse = currentkey.get_intended_response(questionid)
+		# Compare the participant response to the intended response
+		if fuzz.ratio(response.lower(), intendedresponse.lower()) >= fuzzthreshold:
+			# Close match
+			scoringtype = 'Auto'
+			correct = True
+		else:
+			scoringtype = 'Manual'
+			correct = bool()
+		if scoringtype == 'Auto':
+			correctstring = str(int(correct))
+		else:
+			correctstring = ""
+		self.write_recall_response(selftestfile, questionid, intendedresponse, response, scoringtype, correctstring)
+		# Add to the list of questions
+		if scoringtype == 'Auto':
+			self.score_question(correct)
+		else:
+			self.unscored_question()
+		
+	def evaluate_tf_question(self, correct):
+		self.score_question(correct)
+		
 	def score_question(self, correct):
 		self.add_question()
 		if correct:
@@ -110,7 +141,13 @@ class ADTBlock:
 	
 	def unscored_question(self):
 		self.add_question()
-
+								
+	def write_recall_response(self, selftestfile, questionid, intendedresponse, response, scoringtype, correct):
+		selftestfile.write('\n')	
+		selftestfile.write(','.join([self.participant, self.config, str(self.blocknumber),
+		                        str(questionid+1), str(self.totalQs+1),
+		                        intendedresponse, response, scoringtype, correct]))
+		
 	def write_summary(self, summaryfile):
 		summaryfile.write('\n')	
 		summaryfile.write(','.join([self.participant, self.config, str(self.blocknumber),
@@ -120,4 +157,33 @@ class ADTBlock:
 								str(self.timeinternet), str(self.timefirstclick), str(self.timeuntilinternet),
 								str(self.numswitches), str(self.starttime),
 								str(self.endtime), str(self.totaltime), 
-								str(self.totalQs), str(self.correctQs)]))	
+								str(self.totalQs), str(self.correctQs)]))
+								
+class AnswerKey:
+	"""An answer key for free response questions."""
+	
+	def __init__(self):
+		self.answerkey = dict()
+		self.numquestions = 0
+		
+	def read_key(self, inputpath, filename):
+		# Open the file and begin reading CSV
+		answerkeyfilename = inputpath + filename
+		answerkeyfile = open(answerkeyfilename, 'rb')
+		answerkeyreader = csv.reader(answerkeyfile)
+		# Skip variable names
+		line = answerkeyreader.next()
+		# Read each question
+		for line in answerkeyreader:
+			questionid = int(line[0])-1 # 1-based in file
+			intendedresponse = line[1]
+			self.answerkey[questionid] = intendedresponse
+		# Count the number of questions
+		self.numquestions = len(self.answerkey)
+
+	def get_id_from_serial_position(self, questionnum):
+		questionid = questionnum % self.numquestions
+		return questionid
+		
+	def get_intended_response(self, questionid):
+		return self.answerkey[questionid]

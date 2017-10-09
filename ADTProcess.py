@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/ADT Data for Scott/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
@@ -22,6 +22,10 @@ MaxSeconds = 240
 # Qualtrics)
 verbose = False
 
+# Threshold for auto-matching a string via spell-check.
+# Higher number = stricter scoring. Suggested: 90
+FuzzThreshold = 90
+
 # Used columns
 ParticipantCol = 0
 ActionCol = 1
@@ -29,7 +33,7 @@ DataCol= 2
 ConfigCol = 3
 TimeCol = 4	
 		
-# Start the output file:
+# Start the transaction summary file:
 outputfilename = outputpath + 'summary.csv'
 summaryfile = open(outputfilename, 'w')
 summaryfile.write('Participant,Config,Block,' + \
@@ -39,7 +43,19 @@ summaryfile.write('Participant,Config,Block,' + \
                   'SecMedia,SecUntilFirstClick,SecUntilFirstMedia,' + \
                   'NumSwitches,StartTime,EndTime,TotalSeconds,Attempted,Correct')
 stopTime = 0
-                  
+
+# Function to create a self-test answer file, if needed:
+def init_self_test(outputpath):
+	outputfilename = outputpath + 'selftest.csv'
+	selftestfile = open(outputfilename, 'w')
+	selftestfile.write('Participant,Config,Block,' + \
+			'QuestionID,SerialPosition,' + \
+			'AnswerKey,Response,ScoringType,Correct')
+	return selftestfile
+	
+# Are we tracking self-test responses?
+selftestfileopen = False
+
 # Get a list of all the input files:
 filelist = glob.glob(inputpath+'*'+inputsuffix)
 
@@ -107,6 +123,7 @@ for textfilename in filelist:
 				# block name/ID:
 				currentblock.blockname = line[DataCol]
 				currentblock.config = line[ConfigCol]
+				currentblock.configname = re.split('.txt$', currentblock.config)[0]
 				currentblock.uniqueblockid = currentblock.blockname + '-' + currentblock.config
 				# block number:
 				currentblock.blocknumber = blocknumber
@@ -162,11 +179,35 @@ for textfilename in filelist:
 			# they answered an educational question
 			# if noted whether the question is correct or not, tally it
 			if ' CORRECT' in line[DataCol]:
-				currentblock.score_question(True)
+				currentblock.evaluate_tf_question(True)
 			elif ' INCORRECT' in line[DataCol] :
-				currentblock.score_question(False)
+				currentblock.evaluate_tf_question(False)
 			elif 'Question ' in line[DataCol]:
-				currentblock.unscored_question()
+				if "REREAD" in line[DataCol]:
+					# pure re-read, nothing to score
+					currentblock.unscored_question()
+				else:
+					# self-test response
+					if not selftestfileopen:
+						# Start the self-test answer file if it doesn't
+						# already exist
+						selftestfile = init_self_test(outputpath)
+						# Note it
+						selftestfileopen = True	
+					if currentblock.totalQs == 0 and not currentblock.answerkeyunavailable:
+						# if the first question in a block, read in the
+						# answer key
+						answerkeyfilename = currentblock.configname + '_Answers.csv'					
+						currentkey = AnswerKey()
+						try:
+							currentkey.read_key(inputpath, answerkeyfilename)
+						except IOError:
+							print "Can't find or open answer key with filename %s - no answer scoring for this block" % answerkeyfilename
+							currentblock.answerkeyunavailable = True
+					# Get the response and evaluate it
+					if not currentblock.answerkeyunavailable:
+						response = re.split('Question [0-9]+?:', line[DataCol])[1]
+				    currentblock.evaluate_recall_question(selftestfile, response, currentkey, FuzzThreshold)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
@@ -203,5 +244,7 @@ for textfilename in filelist:
 
 # Wrap up the files
 summaryfile.close()
+if selftestfileopen:
+	selftestfile.close()
 print 'Processed %d file(s)' % (len(filelist))
 print 'Done!'
