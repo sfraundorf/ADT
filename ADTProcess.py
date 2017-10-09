@@ -207,7 +207,7 @@ for textfilename in filelist:
 					# Get the response and evaluate it
 					if not currentblock.answerkeyunavailable:
 						response = re.split('Question [0-9]+?:', line[DataCol])[1]
-				    	currentblock.evaluate_recall_question(selftestfile, response, currentkey, FuzzThreshold)
+						currentblock.evaluate_recall_question(selftestfile, response, currentkey, FuzzThreshold)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block
