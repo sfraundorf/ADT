@@ -22,6 +22,10 @@ MaxSeconds = 240
 # Qualtrics)
 verbose = False
 
+# Threshold for auto-matching a string via spell-check.
+# Higher number = stricter scoring. Suggested: 90
+FuzzThreshold = 90
+
 # Used columns
 ParticipantCol = 0
 ActionCol = 1
@@ -203,7 +207,7 @@ for textfilename in filelist:
 					# Get the response and evaluate it
 					if not currentblock.answerkeyunavailable:
 						response = re.split('Question [0-9]+?:', line[DataCol])[1]
-						currentblock.evaluate_recall_question(selftestfile, response, currentkey)
+				    currentblock.evaluate_recall_question(selftestfile, response, currentkey, FuzzThreshold)
 				
 		elif line[ActionCol] == 'Session End':
 			# End of block

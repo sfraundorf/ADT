@@ -1,5 +1,6 @@
 import csv
 import datetime
+from fuzzywuzzy import fuzz
 
 def adttime(timestr):
 	return datetime.datetime.strptime(timestr, '%Y-%m-%d %I:%M:%S%p')
@@ -104,14 +105,14 @@ class ADTBlock:
 	def add_question(self):
 		self.totalQs += 1
 		
-	def evaluate_recall_question(self, selftestfile, response, currentkey):
+	def evaluate_recall_question(self, selftestfile, response, currentkey, fuzzthreshold):
 		# Figure out where in the cycle of items we are
 		questionid = currentkey.get_id_from_serial_position(self.totalQs)
 		# Find the intended response
 		intendedresponse = currentkey.get_intended_response(questionid)
 		# Compare the participant response to the intended response
-		if response.lower() == intendedresponse.lower():
-			# Exact match
+		if fuzz.ratio(response.lower(), intendedresponse.lower()) >= fuzzthreshold:
+			# Close match
 			scoringtype = 'Auto'
 			correct = True
 		else:
