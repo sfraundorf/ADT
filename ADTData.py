@@ -1,6 +1,12 @@
 import csv
 import datetime
-from fuzzywuzzy import fuzz
+global spellcheck
+try:
+	from fuzzywuzzy import fuzz
+	spellcheck = True
+except ImportError, e:
+	print "Unable to import from fuzzywuzzy package - spellchecking of answers not available"
+	spellcheck = False
 
 def adttime(timestr):
 	return datetime.datetime.strptime(timestr, '%Y-%m-%d %I:%M:%S%p')
@@ -106,13 +112,18 @@ class ADTBlock:
 		self.totalQs += 1
 		
 	def evaluate_recall_question(self, selftestfile, response, currentkey, fuzzthreshold):
+		global spellcheck
 		# Figure out where in the cycle of items we are
 		questionid = currentkey.get_id_from_serial_position(self.totalQs)
 		# Find the intended response
 		intendedresponse = currentkey.get_intended_response(questionid)
 		# Compare the participant response to the intended response
-		if fuzz.ratio(response.lower(), intendedresponse.lower()) >= fuzzthreshold:
+		if spellcheck and fuzz.ratio(response.lower(), intendedresponse.lower()) >= fuzzthreshold:
 			# Close match
+			scoringtype = 'Auto'
+			correct = True
+		elif response.lower() == intendedresponse.lower():
+			# Exact match, even if spellcheck unavailable:
 			scoringtype = 'Auto'
 			correct = True
 		else:
