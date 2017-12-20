@@ -6,9 +6,9 @@ import glob
 from ADTData import *
 
 # File locations
-inputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
+inputpath = '/Users/scottfraundorf/Desktop/ADT/logs 11.1.17/ToProcess/'
 inputsuffix = '-Transaction.txt'
-outputpath = '/Users/scottfraundorf/Desktop/ADT/Test-SelfTestAnswers/'
+outputpath = '/Users/scottfraundorf/Desktop/ADT/logs 11.1.17/ToProcess/'
 
 # Threshold (in seconds) for "idling" on the educational activity
 IdleThreshold = 10
@@ -79,6 +79,7 @@ for textfilename in filelist:
 	
 	# Go through events line by line
 	for line in csvreader:
+	
 		# find the action type
 		if len(line) < (ActionCol+1):
 			# blank line
@@ -202,7 +203,7 @@ for textfilename in filelist:
 						try:
 							currentkey.read_key(inputpath, answerkeyfilename)
 						except IOError:
-							print "Can't find or open answer key with filename %s - no answer scoring for this block" % answerkeyfilename
+							print "   Can't find or open answer key with filename %s - no answer scoring for this block" % answerkeyfilename
 							currentblock.answerkeyunavailable = True
 					# Get the response and evaluate it
 					if not currentblock.answerkeyunavailable:
